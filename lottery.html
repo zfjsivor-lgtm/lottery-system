@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽奖系统 - 抽奖页面</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .lottery-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+        }
+
+        .lottery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .lottery-header h1 {
+            color: #333;
+            margin: 0;
+        }
+
+        .user-info {
+            color: #666;
+        }
+
+        .activity-selector {
+            margin-bottom: 30px;
+        }
+
+        .activity-selector select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .lottery-wheel {
+            text-align: center;
+            padding: 40px 20px;
+            margin: 30px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .prize-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .prize-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .prize-item.active {
+            border-color: #ffd700;
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1.1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .prize-item.selected {
+            border-color: #28a745;
+            background: #d4edda;
+            transform: scale(1.2);
+        }
+
+        .prize-item h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .draw-button {
+            padding: 20px 60px;
+            font-size: 24px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .draw-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+        }
+
+        .draw-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result-message {
+            margin: 20px 0;
+            padding: 20px;
+            background: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            font-size: 24px;
+            color: #155724;
+            display: none;
+        }
+
+        .result-message.show {
+            display: block;
+            animation: slideIn 0.5s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .history-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #eee;
+        }
+
+        .history-table {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .draws-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .draws-info span {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="lottery-container">
+            <div class="lottery-header">
+                <h1>🎁 抽奖系统</h1>
+                <div class="user-info">
+                    <span id="currentUser"></span>
+                    <button class="btn btn-secondary" id="logoutBtn" style="width: auto; margin-left: 15px;">退出登录</button>
+                </div>
+            </div>
+
+            <div class="activity-selector">
+                <label for="activitySelect" style="display: block; margin-bottom: 10px; font-weight: 600;">选择抽奖活动：</label>
+                <select id="activitySelect">
+                    <option value="">请选择活动...</option>
+                </select>
+            </div>
+
+            <div id="drawsInfo" class="draws-info" style="display: none;">
+                <span>剩余抽奖次数：<span id="remainingDraws">0</span> / <span id="maxDraws">0</span></span>
+            </div>
+
+            <div class="lottery-wheel">
+                <div id="prizeList" class="prize-list">
+                    <p style="color: white; font-size: 18px;">请先选择抽奖活动</p>
+                </div>
+                <button id="drawButton" class="draw-button" disabled>开始抽奖</button>
+                <div id="resultMessage" class="result-message"></div>
+            </div>
+
+            <div class="history-section">
+                <h2>我的抽奖历史</h2>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>活动名称</th>
+                            <th>中奖奖项</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="3" style="text-align: center; color: #999;">暂无抽奖记录</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="lottery.js"></script>
+</body>
+</html>
+

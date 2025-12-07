@@ -27,8 +27,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             if (result.isAdmin) {
                 window.location.href = 'admin.html';
             } else {
-                errorMessage.textContent = '用户登录成功！抽奖功能待开发';
-                errorMessage.classList.add('show');
+                // 普通用户跳转到抽奖页面
+                window.location.href = 'lottery.html';
             }
         } else {
             errorMessage.textContent = result.message || '用户名或密码错误！';

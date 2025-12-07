@@ -14,6 +14,42 @@
         </header>
 
         <div class="admin-content">
+            <!-- 抽奖活动管理 -->
+            <section class="admin-section">
+                <h2>抽奖活动管理</h2>
+                <div class="form-group">
+                    <label for="activityName">活动名称</label>
+                    <input type="text" id="activityName" placeholder="例如：春节抽奖活动">
+                </div>
+                <div class="form-group">
+                    <label for="activityMaxDraws">每个用户最大抽奖次数</label>
+                    <input type="number" id="activityMaxDraws" placeholder="次数" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="activityUsers">允许参与的用户（留空表示所有用户）</label>
+                    <select id="activityUsers" multiple style="min-height: 100px;">
+                    </select>
+                    <small style="color: #666; display: block; margin-top: 5px;">按住 Ctrl/Cmd 键可多选</small>
+                </div>
+                <button id="createActivityBtn" class="btn btn-primary">创建活动</button>
+                
+                <div class="activity-list" style="margin-top: 20px;">
+                    <h3>活动列表</h3>
+                    <table id="activitiesTable">
+                        <thead>
+                            <tr>
+                                <th>活动名称</th>
+                                <th>最大抽奖次数</th>
+                                <th>允许用户</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activitiesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
             <!-- 用户管理 -->
             <section class="admin-section">
                 <h2>用户管理</h2>
@@ -42,32 +78,17 @@
                 </div>
             </section>
 
-            <!-- 奖项管理 -->
-            <section class="admin-section">
-                <h2>奖项管理</h2>
+            <!-- 活动奖项配置 -->
+            <section class="admin-section" id="activityPrizesSection">
+                <h2>活动奖项管理</h2>
                 <div class="form-group">
-                    <label for="prizeName">奖项名称</label>
-                    <input type="text" id="prizeName" placeholder="例如：一等奖">
+                    <label for="selectActivity">选择活动</label>
+                    <select id="selectActivity">
+                        <option value="">请选择活动</option>
+                    </select>
                 </div>
-                <div class="form-group">
-                    <label for="prizeQuantity">奖项数量</label>
-                    <input type="number" id="prizeQuantity" placeholder="数量" min="1">
-                </div>
-                <button id="createPrizeBtn" class="btn btn-primary">添加奖项</button>
-                
-                <div class="prize-list">
-                    <h3>奖项列表</h3>
-                    <table id="prizesTable">
-                        <thead>
-                            <tr>
-                                <th>奖项名称</th>
-                                <th>数量</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="prizesTableBody">
-                        </tbody>
-                    </table>
+                <div id="activityPrizesContent">
+                    <p>请先选择活动</p>
                 </div>
             </section>
 
@@ -76,13 +97,19 @@
                 <h2>中奖概率设置</h2>
                 <div class="probability-controls">
                     <div class="form-group">
+                        <label for="selectActivityForProb">选择活动</label>
+                        <select id="selectActivityForProb">
+                            <option value="">请选择活动</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="selectUser">选择用户</label>
                         <select id="selectUser">
                             <option value="">请选择用户</option>
                         </select>
                     </div>
                     <div id="probabilitySettings" class="probability-settings">
-                        <p>请先选择用户</p>
+                        <p>请先选择活动和用户</p>
                     </div>
                 </div>
             </section>
