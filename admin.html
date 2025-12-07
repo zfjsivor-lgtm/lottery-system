@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽奖系统 - 管理后台</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>抽奖系统管理后台</h1>
+            <button id="logoutBtn" class="btn btn-secondary">退出登录</button>
+        </header>
+
+        <div class="admin-content">
+            <!-- 用户管理 -->
+            <section class="admin-section">
+                <h2>用户管理</h2>
+                <div class="form-group">
+                    <label for="newUsername">新用户名</label>
+                    <input type="text" id="newUsername" placeholder="输入用户名">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">新密码</label>
+                    <input type="password" id="newPassword" placeholder="输入密码">
+                </div>
+                <button id="createUserBtn" class="btn btn-primary">创建用户</button>
+                
+                <div class="user-list">
+                    <h3>用户列表</h3>
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 奖项管理 -->
+            <section class="admin-section">
+                <h2>奖项管理</h2>
+                <div class="form-group">
+                    <label for="prizeName">奖项名称</label>
+                    <input type="text" id="prizeName" placeholder="例如：一等奖">
+                </div>
+                <div class="form-group">
+                    <label for="prizeQuantity">奖项数量</label>
+                    <input type="number" id="prizeQuantity" placeholder="数量" min="1">
+                </div>
+                <button id="createPrizeBtn" class="btn btn-primary">添加奖项</button>
+                
+                <div class="prize-list">
+                    <h3>奖项列表</h3>
+                    <table id="prizesTable">
+                        <thead>
+                            <tr>
+                                <th>奖项名称</th>
+                                <th>数量</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prizesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 概率设置 -->
+            <section class="admin-section">
+                <h2>中奖概率设置</h2>
+                <div class="probability-controls">
+                    <div class="form-group">
+                        <label for="selectUser">选择用户</label>
+                        <select id="selectUser">
+                            <option value="">请选择用户</option>
+                        </select>
+                    </div>
+                    <div id="probabilitySettings" class="probability-settings">
+                        <p>请先选择用户</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="admin.js"></script>
+</body>
+</html>
+
+

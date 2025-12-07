@@ -1,0 +1,23 @@
+# 安装 Git 后，在项目目录执行以下命令：
+
+# 1. 初始化 Git
+git init
+
+# 2. 添加文件
+git add .
+
+# 3. 提交
+git commit -m "Initial commit: 抽奖系统"
+
+# 4. 重命名分支
+git branch -M main
+
+# 5. 添加远程仓库（替换 YOUR_USERNAME 为你的 GitHub 用户名）
+git remote add origin https://github.com/YOUR_USERNAME/lottery-system.git
+
+# 6. 推送到 GitHub（首次会要求输入用户名和 token）
+git push -u origin main
+
+# 完成后，在 Railway 中选择这个仓库即可自动部署！
+
+
