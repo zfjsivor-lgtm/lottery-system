@@ -32,6 +32,7 @@ function initAdmin() {
     loadActivities();
     loadActivitySelect();
     loadActivitySelectForProb();
+    loadActivitySelectForHistory();
     
     // 活动选择变化
     document.getElementById('selectActivity').addEventListener('change', function() {
@@ -122,12 +123,23 @@ function initAdmin() {
                 loadActivities();
                 loadActivitySelect();
                 loadActivitySelectForProb();
+                loadActivitySelectForHistory();
                 alert('活动创建成功！');
             } else {
                 alert(result.message || '创建失败');
             }
         } catch (error) {
             alert('网络错误，请重试');
+        }
+    });
+
+    // 抽奖记录活动选择变化
+    document.getElementById('selectActivityForHistory').addEventListener('change', function() {
+        const activityId = this.value;
+        if (activityId) {
+            loadLotteryHistory(activityId);
+        } else {
+            document.getElementById('lotteryHistoryContent').innerHTML = '<p>请先选择活动查看抽奖记录</p>';
         }
     });
 }
@@ -265,8 +277,11 @@ async function deleteActivity(id) {
             loadActivities();
             loadActivitySelect();
             loadActivitySelectForProb();
+            loadActivitySelectForHistory();
             document.getElementById('selectActivity').value = '';
             document.getElementById('activityPrizesContent').innerHTML = '<p>请先选择活动</p>';
+            document.getElementById('selectActivityForHistory').value = '';
+            document.getElementById('lotteryHistoryContent').innerHTML = '<p>请先选择活动查看抽奖记录</p>';
             alert('删除成功');
         } else {
             alert(result.message || '删除失败');
@@ -584,6 +599,150 @@ async function saveProbabilities(activityId, username) {
             alert('概率设置保存成功！');
         } else {
             alert(result.message || '保存失败');
+        }
+    } catch (error) {
+        alert('网络错误，请重试');
+    }
+}
+
+// ========== 抽奖记录功能 ==========
+
+// 加载活动选择下拉框（用于抽奖记录查看）
+async function loadActivitySelectForHistory() {
+    try {
+        const response = await fetch(`${API_BASE}/api/activities`);
+        const activities = await response.json();
+        const select = document.getElementById('selectActivityForHistory');
+        
+        select.innerHTML = '<option value="">请选择活动</option>';
+        
+        activities.forEach(activity => {
+            const option = document.createElement('option');
+            option.value = activity.id;
+            option.textContent = activity.name;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('加载活动列表失败:', error);
+    }
+}
+
+// 加载抽奖记录
+async function loadLotteryHistory(activityId) {
+    const contentDiv = document.getElementById('lotteryHistoryContent');
+    contentDiv.innerHTML = '<p>加载中...</p>';
+    
+    try {
+        const response = await fetch(`${API_BASE}/api/activities/${activityId}/history`);
+        const result = await response.json();
+        
+        if (!result.success) {
+            contentDiv.innerHTML = `<p style="color: red;">${result.message || '加载失败'}</p>`;
+            return;
+        }
+        
+        const { activity, history, stats } = result;
+        
+        let html = `
+            <div class="history-header" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <h3 style="margin: 0 0 15px 0;">📌 活动：${activity.name}</h3>
+                <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+                    <div class="stat-item">
+                        <span style="font-size: 24px; font-weight: bold; color: #007bff;">${stats.totalDraws}</span>
+                        <span style="color: #666; margin-left: 5px;">总抽奖次数</span>
+                    </div>
+                    <div class="stat-item">
+                        <span style="font-size: 24px; font-weight: bold; color: #28a745;">${stats.uniqueUsers}</span>
+                        <span style="color: #666; margin-left: 5px;">参与用户数</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // 奖项分布统计
+        if (Object.keys(stats.prizeDistribution).length > 0) {
+            html += `
+                <div class="prize-distribution" style="margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 8px;">
+                    <h4 style="margin: 0 0 10px 0;">🎁 奖项分布</h4>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            `;
+            
+            for (const [prizeName, count] of Object.entries(stats.prizeDistribution)) {
+                const percentage = stats.totalDraws > 0 ? ((count / stats.totalDraws) * 100).toFixed(1) : 0;
+                html += `
+                    <div style="background: white; padding: 10px 15px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <strong>${prizeName}</strong>: ${count}次 (${percentage}%)
+                    </div>
+                `;
+            }
+            
+            html += `</div></div>`;
+        }
+        
+        // 抽奖记录列表
+        if (history.length === 0) {
+            html += '<p style="text-align: center; color: #999; padding: 30px;">暂无抽奖记录</p>';
+        } else {
+            html += `
+                <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="margin: 0;">📜 详细记录</h4>
+                    <button class="btn btn-danger" onclick="clearActivityHistory('${activityId}')" style="width: auto; padding: 5px 15px;">
+                        🗑️ 清空记录
+                    </button>
+                </div>
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>用户</th>
+                            <th>中奖奖项</th>
+                            <th>抽奖时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            history.forEach((record, index) => {
+                const time = new Date(record.timestamp).toLocaleString('zh-CN');
+                html += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${record.username}</td>
+                        <td><span style="background: #ffc107; padding: 2px 8px; border-radius: 3px;">${record.prizeName}</span></td>
+                        <td>${time}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `</tbody></table>`;
+        }
+        
+        contentDiv.innerHTML = html;
+        
+    } catch (error) {
+        console.error('加载抽奖记录失败:', error);
+        contentDiv.innerHTML = '<p style="color: red;">加载失败，请重试</p>';
+    }
+}
+
+// 清空活动的抽奖记录
+async function clearActivityHistory(activityId) {
+    if (!confirm('确定要清空该活动的所有抽奖记录吗？此操作不可恢复！')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/api/activities/${activityId}/history`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(result.message || '清空成功');
+            loadLotteryHistory(activityId);
+        } else {
+            alert(result.message || '清空失败');
         }
     } catch (error) {
         alert('网络错误，请重试');

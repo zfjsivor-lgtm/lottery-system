@@ -606,6 +606,88 @@ app.get('/api/user/:username/history', (req, res) => {
     res.json(history);
 });
 
+// ========== 抽奖记录查看 API ==========
+
+// 获取活动的所有抽奖记录
+app.get('/api/activities/:id/history', (req, res) => {
+    const { id } = req.params;
+    const data = readData();
+    
+    // 检查活动是否存在
+    const activity = data.activities.find(a => a.id === id);
+    if (!activity) {
+        return res.json({ success: false, message: '活动不存在' });
+    }
+    
+    // 过滤出该活动的抽奖记录
+    const history = data.lotteryHistory
+        .filter(h => h.activityId === id)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // 统计数据
+    const stats = {
+        totalDraws: history.length,
+        uniqueUsers: [...new Set(history.map(h => h.username))].length,
+        prizeDistribution: {}
+    };
+    
+    // 统计各奖项中奖次数
+    history.forEach(h => {
+        if (!stats.prizeDistribution[h.prizeName]) {
+            stats.prizeDistribution[h.prizeName] = 0;
+        }
+        stats.prizeDistribution[h.prizeName]++;
+    });
+    
+    res.json({ 
+        success: true, 
+        activity: {
+            id: activity.id,
+            name: activity.name
+        },
+        history,
+        stats
+    });
+});
+
+// 获取所有活动的抽奖记录汇总
+app.get('/api/lottery/history/all', (req, res) => {
+    const data = readData();
+    
+    const history = data.lotteryHistory
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    res.json({
+        success: true,
+        history,
+        total: history.length
+    });
+});
+
+// 清空活动的抽奖记录
+app.delete('/api/activities/:id/history', (req, res) => {
+    const { id } = req.params;
+    const data = readData();
+    
+    // 检查活动是否存在
+    const activity = data.activities.find(a => a.id === id);
+    if (!activity) {
+        return res.json({ success: false, message: '活动不存在' });
+    }
+    
+    // 过滤掉该活动的记录
+    const beforeCount = data.lotteryHistory.length;
+    data.lotteryHistory = data.lotteryHistory.filter(h => h.activityId !== id);
+    const deletedCount = beforeCount - data.lotteryHistory.length;
+    
+    saveData(data);
+    
+    res.json({ 
+        success: true, 
+        message: `已删除 ${deletedCount} 条记录` 
+    });
+});
+
 // 启动服务器
 app.listen(PORT, () => {
     console.log(`========================================`);
