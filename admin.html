@@ -27,6 +27,10 @@
                 </div>
                 <div class="form-group">
                     <label for="activityUsers">允许参与的用户（留空表示所有用户）</label>
+                    <div style="margin-bottom: 5px;">
+                        <button type="button" id="selectAllUsersBtn" class="btn btn-secondary" style="width: auto; padding: 5px 15px; margin-right: 10px;">全选</button>
+                        <button type="button" id="deselectAllUsersBtn" class="btn btn-secondary" style="width: auto; padding: 5px 15px;">取消全选</button>
+                    </div>
                     <select id="activityUsers" multiple style="min-height: 100px;">
                     </select>
                     <small style="color: #666; display: block; margin-top: 5px;">按住 Ctrl/Cmd 键可多选</small>

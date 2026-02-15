@@ -142,6 +142,22 @@ function initAdmin() {
             document.getElementById('lotteryHistoryContent').innerHTML = '<p>请先选择活动查看抽奖记录</p>';
         }
     });
+
+    // 全选用户按钮
+    document.getElementById('selectAllUsersBtn').addEventListener('click', function() {
+        const select = document.getElementById('activityUsers');
+        for (let option of select.options) {
+            option.selected = true;
+        }
+    });
+
+    // 取消全选用户按钮
+    document.getElementById('deselectAllUsersBtn').addEventListener('click', function() {
+        const select = document.getElementById('activityUsers');
+        for (let option of select.options) {
+            option.selected = false;
+        }
+    });
 }
 
 // 加载用户列表
