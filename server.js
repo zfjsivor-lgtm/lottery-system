@@ -9,10 +9,17 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 // 数据文件路径
-const DATA_FILE = path.join(__dirname, 'data.json');
+// 优先使用持久化目录（Railway Volume），否则使用当前目录
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+const DATA_FILE = path.join(DATA_DIR, 'data.json');
 
 // 初始化数据文件
 function initDataFile() {
+    // 确保数据目录存在
+    if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    
     if (!fs.existsSync(DATA_FILE)) {
         const initialData = {
             users: [],
